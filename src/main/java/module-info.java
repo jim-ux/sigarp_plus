@@ -7,6 +7,10 @@ module pe.sunarp.boletera {
     requires com.github.albfernandez.javadbf;
     requires java.logging;
     requires org.apache.commons.lang3;
+    requires jasperreports;
+    requires java.sql;
+    requires mysql.connector.j;
+    requires java.prefs;
 
     opens pe.sunarp.sigarpplus to javafx.fxml;
     exports pe.sunarp.sigarpplus;

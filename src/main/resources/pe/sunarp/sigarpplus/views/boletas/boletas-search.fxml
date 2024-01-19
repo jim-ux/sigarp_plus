@@ -8,16 +8,27 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="575.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.sunarp.sigarpplus.controllers.boletas.BoletasSearchController">
+<AnchorPane prefHeight="675.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.sunarp.sigarpplus.controllers.boletas.BoletasSearchController">
    <children>
       <HBox alignment="CENTER_LEFT" layoutX="40.0" layoutY="23.0" prefHeight="27.0" prefWidth="800.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <Label text="Seleccione año:" />
-            <ComboBox fx:id="cbxYear" onAction="#cbxYearOnClick" prefWidth="150.0" promptText="SELECCIONE" />
+            <ComboBox fx:id="cbxYear" onAction="#cbxYearOnClick" prefHeight="25.0" prefWidth="132.0" promptText="SELECCIONE" />
             <Label text="Seleccione mes:" />
-            <ComboBox fx:id="cbxMonth" disable="true" prefWidth="150.0" promptText="SELECCIONE" />
+            <ComboBox fx:id="cbxMonth" disable="true" prefHeight="25.0" prefWidth="137.0" promptText="SELECCIONE" />
             <Button mnemonicParsing="false" onAction="#btnSearchOnClick" prefHeight="25.0" prefWidth="94.0" text="Buscar" />
+            <Label text="Periodo:">
+               <font>
+                  <Font name="Yu Gothic Bold" size="13.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblPeriodo" text="NINGUNO" textFill="#0014ff">
+               <font>
+                  <Font name="Yu Gothic Regular" size="16.0" />
+               </font>
+            </Label>
          </children>
       </HBox>
       <TableView fx:id="tbvTrabs" layoutX="40.0" layoutY="40.0" prefHeight="474.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">

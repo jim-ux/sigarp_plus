@@ -19,7 +19,11 @@ public class SigarpPlusApp extends Application {
         stage.setTitle("Bienvenido");
         stage.setScene(scene);
         stage.initStyle(StageStyle.UNDECORATED);
+
         stage.show();
+
+
+
     }
 
     public static void main(String[] args) {

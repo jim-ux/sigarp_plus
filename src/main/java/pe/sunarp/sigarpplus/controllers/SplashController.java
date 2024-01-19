@@ -30,7 +30,7 @@ public class SplashController {
 
                     FXMLLoader fxmlLoader = new FXMLLoader(SigarpPlusApp.class.getResource("views/main-window.fxml"));
                     Parent parent = fxmlLoader.load();
-                    Scene scene = new Scene(parent, 800,600);
+                    Scene scene = new Scene(parent, 850,700);
                     Stage stage = new Stage();
                     stage.setScene(scene);
                     stage.getIcons().add(Assets.iconoApp);

@@ -21,11 +21,17 @@ import pe.sunarp.sigarpplus.utils.Constantes;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 public class BoletasSearchController {
 
     private String urlFiles;
 
+    @FXML
+    private Label lblPeriodo;
+
+    private String folderBoletas = "";
+ 
     @FXML
     private ComboBox cbxYear;
     @FXML
@@ -50,7 +56,8 @@ public class BoletasSearchController {
 
     @FXML
     private void initialize(){
-
+        Preferences appInfo = Preferences.systemNodeForPackage(SigarpPlusApp.class);
+        this.folderBoletas = appInfo.get("PREF_FOLDER_BOLETAS", "");
         this.fillYears();
         this.configureTable();
 
@@ -58,8 +65,7 @@ public class BoletasSearchController {
 
     private void fillYears(){
 
-        String baseUrl = Constantes.DATABASE_PATH;
-        File baseDir = new File(baseUrl);
+        File baseDir = new File(this.folderBoletas);
         File[] listDir = baseDir.listFiles(File::isDirectory);
 
         if(listDir != null){
@@ -77,8 +83,8 @@ public class BoletasSearchController {
         }else{
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("Oops");
-            alert.setContentText("Error al leer carpeta");
+            alert.setHeaderText("Error al leer carpeta");
+            alert.setContentText("Configure la carpeta en la pestaña \"Boletas\"` -> \"Configurar carpeta\" ");
             alert.show();
 
         }
@@ -99,7 +105,7 @@ public class BoletasSearchController {
     private void fillMonths(String monthDir){
 
 
-        String baseUrl = Constantes.DATABASE_PATH + File.separator + monthDir;
+        String baseUrl = this.folderBoletas + File.separator + monthDir;
         File baseDir = new File(baseUrl);
         File[] listDir = baseDir.listFiles(File::isDirectory);
 
@@ -136,7 +142,7 @@ public class BoletasSearchController {
             return;
         }
 
-        this.urlFiles = Constantes.DATABASE_PATH + File.separator + cbxYear.getValue() + File.separator + cbxMonth.getValue();
+        this.urlFiles = this.folderBoletas + File.separator + cbxYear.getValue() + File.separator + cbxMonth.getValue();
         String rutaTrabFiles = this.urlFiles + File.separator + Constantes.fileNames.get("trab");
         this.tbvTrabs.getItems().clear();
 
@@ -162,10 +168,12 @@ public class BoletasSearchController {
 
         String rawDate = (String) cbxMonth.getValue();
         String fileYear = rawDate.substring(0, 4);
-        String fileMonth = rawDate.substring(4, 7);
-        String aditionalInfo = " - " + rawDate.substring(7);
+        String fileMonth =  rawDate.substring(4, 7);
+        String aditionalInfo = !rawDate.substring(7).isEmpty() ? "-" + rawDate.substring(7) : "";
 
-        System.out.println(MessageFormat.format("Periodo {0}{1} del {2} ", fileMonth,  aditionalInfo, fileYear));
+
+
+        lblPeriodo.setText(MessageFormat.format("{0}{1} del {2} ", fileMonth,  aditionalInfo, fileYear));
 
     }
 
@@ -213,7 +221,7 @@ public class BoletasSearchController {
             stage.setTitle("Detalle de boleta");
             stage.getIcons().add(Assets.iconoApp);
             BoletasDetailController controller = fxmlLoader.getController();
-            controller.setData(infoTrab, this.urlFiles);
+            controller.setData(infoTrab, lblPeriodo.getText() ,this.urlFiles);
             stage.show();
 
 

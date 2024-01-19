@@ -6,10 +6,27 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.print.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
+import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import pe.sunarp.sigarpplus.SigarpPlusApp;
 import pe.sunarp.sigarpplus.entities.Concepto;
 import pe.sunarp.sigarpplus.entities.Trabajador;
@@ -17,12 +34,19 @@ import pe.sunarp.sigarpplus.models.boletas.BoletasModel;
 import pe.sunarp.sigarpplus.utils.Constantes;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoletasDetailController {
 
     private Trabajador datosTrab;
+
+    private String fechaBoleta;
+
     @FXML
     private TextField txtCodTrab;
     @FXML
@@ -105,10 +129,10 @@ public class BoletasDetailController {
         this.imvLogo.setImage(logoSunarp);
     }
 
-    public void setData(Trabajador trabajador, String baseRuta){
+    public void setData(Trabajador trabajador, String fechaBoleta, String baseRuta){
 
         this.datosTrab = trabajador;
-
+        this.fechaBoleta = fechaBoleta;
         txtCodTrab.setText(this.datosTrab.getCodTrab());
         txtNombres.setText(this.datosTrab.getApPaterno() + " " + this.datosTrab.getApMaterno() + " " +this.datosTrab.getNombres());
         txtDocumento.setText(this.datosTrab.getDocumento());
@@ -208,6 +232,136 @@ public class BoletasDetailController {
 
         DecimalFormat currency = new DecimalFormat("S/ #,###.##");
         return currency.format(concepto.getMontoCpt());
+
+    }
+
+    @FXML
+    private void generateReport() {
+
+        Stage stage = (Stage) this.txtCargoLab.getScene().getWindow();
+        PrinterJob job = PrinterJob.createPrinterJob();
+
+        //&& job.showPrintDialog(stage)
+        if(job != null ){
+            Printer printer = job.getPrinter();
+            PageLayout pageLayout = printer.createPageLayout(Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+
+            double pageWidth = pageLayout.getPrintableWidth();
+            double pageHeight = pageLayout.getPrintableHeight();
+
+            Parent root = this.configuratePrintPage(pageWidth, pageHeight/2);
+
+//            Scene scenePreview = new Scene(root, pageWidth, pageHeight/2);
+//            Stage stagePreview = new Stage();
+//            stagePreview.setResizable(false);
+//            stagePreview.setScene(scenePreview);
+//            stagePreview.show();
+
+            boolean jobState =  job.printPage(pageLayout, root);
+            if(jobState){
+                job.endJob();
+            }
+
+            System.out.println("Imprimiendo");
+        }
+
+    }
+
+    @FXML
+    private Parent configuratePrintPage(double width, double height){
+
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.setStyle("-fx-background-color: white");
+        anchorPane.setPrefWidth(width);
+        anchorPane.setPrefHeight(height);
+
+        //Title
+        Label lblTitle = new Label("BOLETA DE PAGO");
+        lblTitle.setPrefWidth(width);
+        lblTitle.setStyle("-fx-font-weight: bold;-fx-font-size: 16px; -fx-alignment: center");
+
+
+        //TABLES
+        HBox hbxTables = new HBox();
+        hbxTables.setLayoutY(50f);
+        AnchorPane.setLeftAnchor(hbxTables, 0.0);
+        AnchorPane.setRightAnchor(hbxTables, 0.0);
+
+        double tableWidth = width/3;
+
+        for(int i = 0; i< 3; i++){
+            VBox vboxTable = new VBox();
+            vboxTable.setSpacing(2f);
+            Label lblTableTitle = new Label();
+            lblTableTitle.setPrefWidth(tableWidth);
+            lblTableTitle.setStyle("-fx-font-weight: bold; -fx-alignment: center");
+            vboxTable.getChildren().add(lblTableTitle);
+            switch (i){
+
+                case 0: {
+                    lblTableTitle.setText("Ingresos");
+                    listaIngresos.forEach((Concepto cop) ->{
+                        HBox row = new HBox();
+                        Label lblNomCpt = new Label(cop.getNomCpt());
+                        lblNomCpt.setPrefWidth(tableWidth - 50);
+                        Label lblMontoCpt = new Label(cop.getMontoCpt().toString());
+                        lblMontoCpt.setPrefWidth(50);
+                        row.getChildren().addAll(lblNomCpt, lblMontoCpt);
+                        vboxTable.getChildren().add(row);
+                    });
+
+                    hbxTables.getChildren().add(vboxTable);
+
+                    break;
+                }
+                case 1: {
+
+                    lblTableTitle.setText("Egresos");
+                    listaEgresos.forEach((Concepto cop) ->{
+                        HBox row = new HBox();
+                        Label lblNomCpt = new Label(cop.getNomCpt());
+                        lblNomCpt.setPrefWidth(tableWidth - 50);
+                        Label lblMontoCpt = new Label(cop.getMontoCpt().toString());
+                        lblMontoCpt.setPrefWidth(50);
+                        row.getChildren().addAll(lblNomCpt, lblMontoCpt);
+                        vboxTable.getChildren().add(row);
+                    });
+
+                    hbxTables.getChildren().add(vboxTable);
+                    break;
+                }
+                case 2:{
+
+                    lblTableTitle.setText("Aportes");
+                    listaAportes.forEach((Concepto cop) ->{
+                        HBox row = new HBox();
+                        Label lblNomCpt = new Label(cop.getNomCpt());
+                        lblNomCpt.setPrefWidth(tableWidth - 50);
+                        Label lblMontoCpt = new Label(cop.getMontoCpt().toString());
+                        lblMontoCpt.setPrefWidth(50);
+                        row.getChildren().addAll(lblNomCpt, lblMontoCpt);
+                        vboxTable.getChildren().add(row);
+                    });
+
+                    hbxTables.getChildren().add(vboxTable);
+                    break;
+                }
+
+            }
+
+        }
+
+        //FIRMAS
+
+        Line lineaFirma = new Line(width - 100,height-30,width,height-30);
+        Label lblFirma = new Label("Recibí conforme");
+        lblFirma.setLayoutX(width-95);
+        lblFirma.setLayoutY(height - 25);
+
+
+        anchorPane.getChildren().addAll(lblTitle, hbxTables, lineaFirma, lblFirma);
+
+        return anchorPane;
 
     }
 }

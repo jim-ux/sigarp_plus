@@ -8,9 +8,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import pe.sunarp.sigarpplus.SigarpPlusApp;
+import pe.sunarp.sigarpplus.utils.Assets;
 
 import java.io.IOException;
 
@@ -63,6 +65,10 @@ public class MainController {
                 filePath = "views/boletas/boletas-search.fxml";
                 break;
             }
+            case "mniConfigFolder":{
+                this.openConfigFolder();
+                return;
+            }
 
             case "mniCerrar":{
 
@@ -108,6 +114,30 @@ public class MainController {
             alert.show();
         }
 
+
+
+    }
+
+    private void openConfigFolder(){
+
+        try {
+            this.acpWorkSpace.getChildren().clear();
+            FXMLLoader loader = new FXMLLoader(SigarpPlusApp.class.getResource("views/boletas/boletas-config-folder.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, 400,240);
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setScene(scene);
+            stage.getIcons().add(Assets.iconoApp);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+
+        }catch (IOException ex){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Error de archivo");
+            alert.setContentText(ex.toString());
+            alert.show();
+        }
 
 
     }
