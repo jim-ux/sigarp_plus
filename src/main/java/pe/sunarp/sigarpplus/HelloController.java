@@ -20,13 +20,6 @@ public class HelloController {
     @FXML
     private void initialize() throws IOException {
 
-
-
-
-
-
-
-
     }
 
 

@@ -3,11 +3,9 @@ module pe.sunarp.boletera {
     requires javafx.fxml;
     requires javafx.base;
     requires static lombok;
-    requires layout;
     requires com.github.albfernandez.javadbf;
     requires java.logging;
     requires org.apache.commons.lang3;
-    requires jasperreports;
     requires java.sql;
     requires mysql.connector.j;
     requires java.prefs;
