@@ -9,6 +9,7 @@ module pe.sunarp.boletera {
     requires java.sql;
     requires mysql.connector.j;
     requires java.prefs;
+    requires org.controlsfx.controls;
 
     opens pe.sunarp.sigarpplus to javafx.fxml;
     exports pe.sunarp.sigarpplus;

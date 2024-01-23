@@ -24,13 +24,13 @@ public class SplashController {
     @FXML
     private void initialize(){
 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), (ActionEvent event)->{
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), (ActionEvent event)->{
 
                 try {
 
                     FXMLLoader fxmlLoader = new FXMLLoader(SigarpPlusApp.class.getResource("views/main-window.fxml"));
                     Parent parent = fxmlLoader.load();
-                    Scene scene = new Scene(parent, 850,700);
+                    Scene scene = new Scene(parent, 950,800);
                     Stage stage = new Stage();
                     stage.setScene(scene);
                     stage.getIcons().add(Assets.iconoApp);

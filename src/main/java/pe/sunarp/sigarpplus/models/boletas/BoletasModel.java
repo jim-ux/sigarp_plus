@@ -5,12 +5,14 @@ import com.linuxense.javadbf.DBFReader;
 import com.linuxense.javadbf.DBFRow;
 import javafx.scene.control.Alert;
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.dialog.ExceptionDialog;
 import pe.sunarp.sigarpplus.entities.Concepto;
 import pe.sunarp.sigarpplus.entities.Trabajador;
 import pe.sunarp.sigarpplus.utils.Constantes;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +40,9 @@ public class BoletasModel {
                 trabajador.setDocumento(row.getString("LIB_ELEC"));
                 trabajador.setNomAfp(row.getString("CODAFP"));
                 trabajador.setNumeroAfp(cleanName(row.getString("CUIAFP")));
-                trabajador.setFechaIngreso("");
-                trabajador.setFechaCese("");
+                trabajador.setFechaIngreso(row.getDate("FECHA_ING"));
+                trabajador.setFechaCese(row.getDate("FECHA_CESE"));
+                trabajador.setSueldoBasico(row.getDouble("BASICO"));
                 trabajador.setPlaza("");
                 trabajador.setCargoLab(row.getString("CARGO"));
                 lista.add(trabajador);
@@ -56,10 +59,10 @@ public class BoletasModel {
             alert.show();
 
         }catch (DBFFieldNotFoundException ex){
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("Columna no encontrada");
-            alert.setContentText(ex.toString());
-            alert.show();
+            ExceptionDialog dialog = new ExceptionDialog(ex);
+            dialog.setHeaderText("Error");
+            dialog.setTitle("Error");
+            dialog.show();
         }
         return lista;
 
@@ -145,6 +148,26 @@ public class BoletasModel {
 
     }
 
+    public LocalDate getFechaBoleta(String filePath){
+
+        LocalDate fecha = LocalDate.now();
+
+        try{
+
+            FileInputStream filePlanilla = new FileInputStream(filePath);
+            DBFReader reader = new DBFReader(filePlanilla);
+            DBFRow row = reader.nextRow();
+            fecha = this.transformMonthYear(row.getString("CODPLA"));
+
+        }catch (FileNotFoundException ex){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Archivo no encontrado");
+            alert.setContentText("Archivo "+ Constantes.fileNames.get("trab")  + " en la ruta "+filePath);
+            alert.show();
+        }
+        return fecha;
+    }
+
     private String buildCuentaBanc(String cod, String cuenta){
 
         String codAgent = StringUtils.leftPad(cod, 3, "0");
@@ -158,8 +181,17 @@ public class BoletasModel {
     }
 
     private String cleanName(String rawString){
-
+        //"£" -> ú
         return rawString.replaceAll("¥", "Ñ");
+
+
+    }
+
+    private LocalDate transformMonthYear(String fecha){
+
+        String year = fecha.substring(0,4);
+        String month = fecha.substring(4,6);
+        return LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 1);
 
     }
 }

@@ -21,22 +21,29 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.Notifications;
 import pe.sunarp.sigarpplus.SigarpPlusApp;
 import pe.sunarp.sigarpplus.entities.Concepto;
 import pe.sunarp.sigarpplus.entities.Trabajador;
 import pe.sunarp.sigarpplus.models.boletas.BoletasModel;
 import pe.sunarp.sigarpplus.utils.Constantes;
+import pe.sunarp.sigarpplus.utils.Fecha;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 public class BoletasDetailController {
 
     private Trabajador datosTrab;
 
-    private String fechaBoleta;
-
+    @FXML
+    private Label lblFechaBoleta;
     @FXML
     private TextField txtCodTrab;
     @FXML
@@ -119,10 +126,9 @@ public class BoletasDetailController {
         this.imvLogo.setImage(logoSunarp);
     }
 
-    public void setData(Trabajador trabajador, String fechaBoleta, String baseRuta){
+    public void setData(Trabajador trabajador,String baseRuta){
 
         this.datosTrab = trabajador;
-        this.fechaBoleta = fechaBoleta;
         txtCodTrab.setText(this.datosTrab.getCodTrab());
         txtNombres.setText(this.datosTrab.getApPaterno() + " " + this.datosTrab.getApMaterno() + " " +this.datosTrab.getNombres());
         txtDocumento.setText(this.datosTrab.getDocumento());
@@ -139,7 +145,7 @@ public class BoletasDetailController {
 
         this.tbcIngCod.setCellValueFactory(new PropertyValueFactory<>("codCpt"));
         this.tbcIngNom.setCellValueFactory(new PropertyValueFactory<>("nomCpt"));
-        this.tbcIngMonto.setCellValueFactory(cellData -> new SimpleStringProperty(this.formatMoney(cellData.getValue())));
+        this.tbcIngMonto.setCellValueFactory(new PropertyValueFactory<>("montoCpt"));
 
         this.tbcEgrCod.setCellValueFactory(new PropertyValueFactory<>("codCpt"));
         this.tbcEgrNom.setCellValueFactory(new PropertyValueFactory<>("nomCpt"));
@@ -154,7 +160,6 @@ public class BoletasDetailController {
         this.tbvAportes.setItems(listaAportes);
 
 
-
     }
 
     private void fillTables(String rutaArchivos){
@@ -164,6 +169,9 @@ public class BoletasDetailController {
 
         String cuenta = boletasModel.getCuentaBancaria(this.datosTrab.getCodTrab(), StringUtils.join (new String[]{rutaArchivos, Constantes.fileNames.get("bancos")}, File.separator));
         txtCuenta.setText(cuenta);
+
+        LocalDate fechaBoleta = boletasModel.getFechaBoleta(rutaArchivos + File.separator + Constantes.fileNames.get("montos"));
+        lblFechaBoleta.setText("Mes:    "+ fechaBoleta.format(DateTimeFormatter.ofPattern("MMMM '-' yyyy")).toUpperCase());
 
         listaMontos.forEach( (Concepto concepto) -> {
 
@@ -218,10 +226,12 @@ public class BoletasDetailController {
 
     }
 
-    private String formatMoney(Concepto concepto){
-
-        DecimalFormat currency = new DecimalFormat("S/ #,###.##");
-        return currency.format(concepto.getMontoCpt());
+    private String formatMoney(Double montoConcepto){
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setCurrencySymbol("S/. ");
+        DecimalFormat currency = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.getDefault());
+        currency.setDecimalFormatSymbols(symbols);
+        return currency.format(montoConcepto);
 
     }
 
@@ -247,13 +257,15 @@ public class BoletasDetailController {
 //            stagePreview.setScene(scenePreview);
 //            stagePreview.show();
 
+
+
             boolean jobState =  job.printPage(pageLayout, root);
             if(jobState){
+                Notifications.create()
+                        .title("Boletas Sunarp")
+                        .text("Imprimiendo Boleta").
+                        showInformation();
                 job.endJob();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("Impresión en proceso");
-                alert.setContentText("El documento saldrá en su impresora configurada por defecto");
-                alert.show();
             }
 
 
@@ -283,6 +295,9 @@ public class BoletasDetailController {
         lblRuc.setStyle("-fx-alignment: center");
         lblRuc.setPrefWidth(width);
         lblRuc.setLayoutY(37f);
+        Label lblFecha = new Label(lblFechaBoleta.getText());
+        AnchorPane.setRightAnchor(lblFecha, 0.0);
+        AnchorPane.setTopAnchor(lblFecha, 0.0);
         //Pane datos
         AnchorPane pane = new AnchorPane();
         pane.setLayoutY(55f);
@@ -296,9 +311,9 @@ public class BoletasDetailController {
                 this.infoBoxBoleta("Código", this.datosTrab.getCodTrab(), 0.0,0.0),
                 this.infoBoxBoleta("Apellidos y nombres", this.txtNombres.getText(), 40.0 , 0.0),
                 this.infoBoxBoleta("Nro. DNI", this.txtDocumento.getText(), 340.0, 0.0),
-                this.infoBoxBoleta("Fecha ingreso", "12/05/2004", 395.0, 0.0 ),
-                this.infoBoxBoleta("Fecha cese", "12/05/2004", 470.0, 0.0 ),
-                this.infoBoxBoleta("Plaza", "0000", .0, 25.0),
+                this.infoBoxBoleta("Fecha ingreso", Fecha.formatDate(this.datosTrab.getFechaIngreso()), 395.0, 0.0 ),
+                this.infoBoxBoleta("Fecha cese", Fecha.formatDate(this.datosTrab.getFechaCese()), 470.0, 0.0 ),
+                this.infoBoxBoleta("Plaza", "", .0, 25.0),
                 this.infoBoxBoleta("Cargo", this.datosTrab.getCargoLab(), 40.0, 25.0),
                 this.infoBoxBoleta("Nro Carné IPSS","", width/2, 25.0),
                 this.infoBoxBoleta("A.F.P", this.txtNomAfp.getText(), 390.0, 25.0),
@@ -312,7 +327,7 @@ public class BoletasDetailController {
         AnchorPane.setRightAnchor(paneSueldo, 0.0);
 
         paneSueldo.getChildren().addAll(
-                this.infoBoxBoleta("Sueldo Básico", "", 0.0, 0.0),
+                this.infoBoxBoleta("Sueldo Básico", this.formatMoney(this.datosTrab.getSueldoBasico()), 0.0, 0.0),
                 this.infoBoxBoleta("Días trab.", "30 días", 70.0, 0.0),
                 this.infoBoxBoleta("Días Subsid.", "", 120.0, 0.0),
                 this.infoBoxBoleta("Vacaciones   :   Periodo", "", width/2, 0.0),
@@ -406,7 +421,7 @@ public class BoletasDetailController {
             this.boxTotales("TOTAL INGRESOS:", this.txtTotalIng.getText(), 0.0,0.0,tableWidth/2),
                 this.boxTotales("TOTAL EGRESOS:", this.txtTotalEgr.getText(), tableWidth,0.0,tableWidth/2),
                 this.boxTotales("TOTAL APORTES", this.txtTotalApo.getText(), tableWidth*2, 0.0, tableWidth/2),
-                this.boxTotales("Cta.SCOTIABANK", this.txtCuenta.getText(), 0.0, 15.0, tableWidth/2),
+                this.boxTotales("Cta. SCOTIABANK", this.txtCuenta.getText(), 0.0, 15.0, tableWidth/2),
                 this.boxTotales("NETO A RECIBIR", this.lblTotalBoleta.getText(), tableWidth, 15.0, tableWidth/2)
         );
 
@@ -420,7 +435,7 @@ public class BoletasDetailController {
         lblFirma.setLayoutY(height - 25);
 
 
-        anchorPane.getChildren().addAll(lblTitle, lblZone, lblUbication, lblRuc, pane, paneSueldo, vboxTables, lineaFirma, lblFirma);
+        anchorPane.getChildren().addAll(lblTitle, lblZone, lblUbication, lblRuc, lblFecha, pane, paneSueldo, vboxTables, lineaFirma, lblFirma);
 
         return anchorPane;
 

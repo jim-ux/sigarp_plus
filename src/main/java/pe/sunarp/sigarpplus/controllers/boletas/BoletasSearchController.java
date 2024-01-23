@@ -27,9 +27,6 @@ public class BoletasSearchController {
 
     private String urlFiles;
 
-    @FXML
-    private Label lblPeriodo;
-
     private String folderBoletas = "";
  
     @FXML
@@ -150,7 +147,6 @@ public class BoletasSearchController {
 
             List<Trabajador> lista = new BoletasModel().getListaBoletas(rutaTrabFiles);
             listaTrab.addAll(lista);
-            this.transformMonthYear();
 
 
         }catch (IndexOutOfBoundsException | NullPointerException ex){
@@ -161,19 +157,6 @@ public class BoletasSearchController {
 
             ex.printStackTrace();
         }
-
-    }
-
-    private void transformMonthYear() {
-
-        String rawDate = (String) cbxMonth.getValue();
-        String fileYear = rawDate.substring(0, 4);
-        String fileMonth =  rawDate.substring(4, 7);
-        String aditionalInfo = !rawDate.substring(7).isEmpty() ? "-" + rawDate.substring(7) : "";
-
-
-
-        lblPeriodo.setText(MessageFormat.format("{0}{1} del {2} ", fileMonth,  aditionalInfo, fileYear));
 
     }
 
@@ -221,7 +204,7 @@ public class BoletasSearchController {
             stage.setTitle("Detalle de boleta");
             stage.getIcons().add(Assets.iconoApp);
             BoletasDetailController controller = fxmlLoader.getController();
-            controller.setData(infoTrab, lblPeriodo.getText() ,this.urlFiles);
+            controller.setData(infoTrab, this.urlFiles);
             stage.show();
 
 

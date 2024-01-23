@@ -1,31 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.sunarp.sigarpplus.controllers.SplashController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@css/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.sunarp.sigarpplus.controllers.SplashController">
    <children>
-      <ProgressBar fx:id="progressBar" layoutX="21.0" layoutY="162.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-      <ImageView fitHeight="93.0" fitWidth="134.0" layoutX="96.0" pickOnBounds="true" preserveRatio="true" AnchorPane.topAnchor="0.0">
-         <image>
-            <Image url="@icons/cuenta.png" />
-         </image>
-      </ImageView>
-      <Label layoutX="90.0" layoutY="123.0" text="SIGARP PLUS">
-         <font>
-            <Font name="Yu Gothic UI Bold" size="20.0" />
-         </font>
-      </Label>
+      <AnchorPane layoutX="26.0" layoutY="46.0" prefHeight="200.0" prefWidth="200.0" styleClass="splash-left-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="0.0" />
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox alignment="CENTER_RIGHT" layoutX="20.0" layoutY="360.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <children>
+                  <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="263.0" />
+                  <Label text="Copyright 2023  ®" textFill="#9a9a9a" />
+               </children>
+            </VBox>
+            <Label layoutX="72.0" layoutY="126.0" styleClass="h1" text="SIGARP PLUS" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <font>
+                  <Font name="Yu Gothic UI Bold" size="20.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </AnchorPane>
    </children>
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
-   <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-   </padding>
+   <styleClass>
+      <String fx:value="main-pane" />
+      <String fx:value="splash" />
+   </styleClass>
 </AnchorPane>
